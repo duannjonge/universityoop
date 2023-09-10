@@ -1,4 +1,5 @@
 import click
+#request input from user
 
 # Define data structures to store information
 lecturers = []

@@ -5,8 +5,11 @@ from .base import Base
 class Unit(Base):
     __tablename__ = 'units'
     id = Column(Integer(), primary_key=True)
-    name= Column(String())
+    title= Column(String())
 
+
+    def __init__(self,title):
+        self.title=title
 
     def add_unitmain(self,unitmain):
           self.unitmains.append(unitmain)

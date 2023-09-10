@@ -1,11 +1,13 @@
 from sqlalchemy import Column, Integer, String
 from sqlalchemy.orm import relationship
 from .base import Base
+from .associations import student_unit_association
 class Lecturer(Base):
-         __tablename__ = 'lecturers'
+         __tablename__ ='lecturers'
          id = Column(Integer(), primary_key=True)
          name = Column(String())
          department=Column(String())
+         units = relationship("Unit", secondary= student_unit_association,back_populates="students")
 
          def __init__(self,name):
                   self.name=name
