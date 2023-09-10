@@ -1,129 +1,116 @@
-#main.py
-# write test cases for output
-
+import click
 from sqlalchemy import create_engine
-from sqlalchemy.orm import sessionmaker 
-from models.lecturer import Lecturer
-from models.student import Student
-from models.unit import Unit
-from models.associations import student_unit_association
-from models.base import Base
-import os 
+from sqlalchemy.orm import sessionmaker
+from models.model import Base, Student, Lecturer, Unit
 
-
-
-# DB_DIR = os.path.dirname(os.path.realpath(__file__))
-# conn = "sqlite:///" + os.path.join(DB_DIR, "university.db")
-engine = create_engine("sqlite:///university.db")
-
-#bind connection when main is run
+engine = create_engine('sqlite:///university.db')
+Base.metadata.create_all(engine)  # Create the database schema if it doesn't exist
 Session = sessionmaker(bind=engine)
 session = Session()
 
+@click.group()
+def cli():
+    pass
 
-# creating the tables 
-Base.metadata.create_all(engine) 
+@cli.command()
+@click.option('--name', prompt='Student Name', help='Name of the student')
+@click.option('--unit', prompt='Student Unit', help='Unit of the student')
+def create_studentname(name, unit):
+    """Add a new student to the database"""
+    # Create a new Student instance using the ORM mechanism
+    student = Student(name=name)
+    
+    # If you have a unit_id that corresponds to a unit in the 'units' table, set it here
+    # student.unit_id = <unit_id>
 
-# student1=Student(name='Branden',unit='Computer Science')
-# Lecturer1=Lecturer(name='John',department='Engineering')
-
-
-#create objects and call methods
-studentName='Branden'
-lecturerName='John'
-# unit1=Unit('Computer Science')
-unitTitle='Computer Science'
-unitTitle2='Algorithms'
-
-# student2=Student(name='Thomas',unit='Accounts')
-# Lecturer2=Lecturer(name='Clarkson',department='Accounting')
-
-studentName2='Thomas'
-lecturerName2='Clarkson'
-
-
-# #add objects to session
-# session.add_all([student1,student2,lecturer1,unit1,unit2])
-# #commit changes //after every operation commit changes
-# session.commit()
-
-# validate / assumpation handling 
-# object creation / record insert to the db table 
-student1=session.query(Student).filter_by(name=studentName).first()
-if not student1:
-    student1 = Student(name=studentName)
-
-
-student2=session.query(Student).filter_by(name=studentName2).first()
-if not student1:
-    student2 = Student(name=studentName2)
-
-
-lecturer1=session.query(Lecturer).filter_by(name=lecturerName).first()
-if not lecturer1:
-    lecturer1 = Lecturer(name=lecturerName)
-
-
-lecturer2=session.query(Lecturer).filter_by(name=lecturerName2).first()
-if not lecturer2:
-    lecturer2 = Lecturer(name=lecturerName2)
-
-unit1=session.query(Unit).filter_by(title=unitTitle).first()
-if not unit1:
-    unit1 = Unit(title=unitTitle)
-
-unit2=session.query(Unit).filter_by(title=unitTitle2).first()
-if not unit2:
-    unit2 = Unit(title=unitTitle2)
-
-#helper methods
-lecturer1.write_unit(unit1)
-student1.add_unit(unit1)
-student2.add_unit(unit2)
-
-#adding objects to session
-if student1 not in session:
-    session.add(student1)
-
-if lecturer1 not in session:
-    session.add(lecturer1)
-
-if unit1 not in session:
-    session.add(unit1)
-
-if student2 not in session:
-    session.add(student2)
-
-if lecturer2 not in session:
-    session.add(lecturer2)
-
-if unit2 not in session:
-    session.add(unit2)
-
-# #commit changes //after every operation commit changes
-session.commit()
-
-# Crud  OPERATIONS
-#Read
-all_students=session.query(Student).all()
-for student in all_students:
-    print("Student name:",student.name)
-    for unit in student.units:
-        print("Unit",unit.title)
-#Update
-studenttoUpdate=session.query(Student).filter_by(name=student2).first()
-if studenttoUpdate:
-    studenttoUpdate.name='Ian'
+    session.add(student)
     session.commit()
+    click.echo(f'Student "{name}" created successfully.')
 
-#Delete Data
-# studenttoDelete=session.query(Student).filter_by(name="Moses").first()
-# if studenttoDelete:
-#     session.delete(studenttoDelete)
+
+
+# @cli.command()
+# @click.option('--name', prompt='Shipment Name', help='Name of the shipment')
+# @click.option('--status', prompt='Shipment Status', help='Status of the shipment')
+# @click.option('--recipient', prompt='Recipient Name', help='Name of the recipient')
+# @click.option('--recipient-address', prompt='Recipient Address', help='Address of the recipient')
+# @click.option('--carrier', prompt='Carrier Name', help='Name of the carrier')
+# def create_shipment(name, status, recipient, recipient_address, carrier):
+#     """Add a new shipment to the database with recipient, address, and carrier details"""
+
+#     existing_recipient = session.query(
+#         Recipient).filter_by(name=recipient).first()
+#     if existing_recipient:
+#         recipient_id = existing_recipient.id
+#     else:
+
+#         new_recipient = Recipient(name=recipient, address=recipient_address)
+#         session.add(new_recipient)
+#         session.commit()
+#         recipient_id = new_recipient.id
+
+#     existing_carrier = session.query(Carrier).filter_by(name=carrier).first()
+#     if existing_carrier:
+#         carrier_id = existing_carrier.id
+#     else:
+
+#         new_carrier = Carrier(name=carrier)
+#         session.add(new_carrier)
+#         session.commit()
+#         carrier_id = new_carrier.id
+
+#     shipment = Shipment(name=name, status=status,
+#                         recipient_id=recipient_id, carrier_id=carrier_id)
+#     session.add(shipment)
 #     session.commit()
-# else:
-#     print("Author not found,unable to delete")
-#close the session
-session.close()
+#     click.echo(
+#         f'Shipment "{name}" has been created successfully with recipient "{recipient}" and carrier "{carrier}".')
 
 
+# @cli.command()
+# def list_shipments():
+#     """Show all shipments"""
+#     shipments = session.query(Shipment).all()
+#     if not shipments:
+#         click.echo('No shipments found.')
+#     else:
+#         click.echo(
+#             '************************************************************Shipment History*******************************************')
+#         for shipment in shipments:
+#             click.echo(
+#                 f'Recipient: {shipment.recipient.name}| Package:{shipment.name}| Carrier: {shipment.carrier.name}| Delivery Address: {shipment.recipient.address}| Status: {shipment.status}')
+
+
+# @cli.command()
+# @click.option('--name', prompt='Shipment Name', help='Name of the shipment to update')
+# @click.option('--status', prompt='New Shipment Status', help='New status for the shipment')
+# def update_status(name, status):
+#     """Update shipment status"""
+#     shipment = session.query(Shipment).filter_by(name=name).first()
+#     if not shipment:
+#         click.echo(f'Shipment "{name}" not found.')
+#     else:
+#         shipment.status = status
+#         session.commit()
+#         click.echo(f'Shipment "{name}" updated successfully.')
+
+
+# @cli.command()
+# @click.option('--name', prompt='Shipment Name', help='Name of the shipment to delete')
+# def delete_shipment(name):
+#     """Delete a shipment from the database"""
+
+#     shipment = session.query(Shipment).filter_by(name=name).first()
+#     if not shipment:
+#         click.echo(f'Shipment "{name}" not found.')
+#     else:
+
+#         session.delete(shipment)
+#         session.commit()
+#         click.echo(
+#             f'Shipment "{name}" has been deleted successfully.')
+
+
+if __name__ == '__main__':
+    Base.metadata.create_all(engine)
+    cli()
