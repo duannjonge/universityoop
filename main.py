@@ -6,6 +6,7 @@ from sqlalchemy.orm import sessionmaker
 from models.lecturer import Lecturer
 from models.student import Student
 from models.unit import Unit
+from models.associations import student_unit_association
 from models.base import Base
 import os 
 
