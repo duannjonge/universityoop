@@ -8,15 +8,21 @@ Base = declarative_base()
 # Student Class
 class Student(Base):
     __tablename__ = 'students'
-    id = Column(Integer, primary_key=True)
-    name = Column(String, nullable=False)
-    unit_id = Column(Integer, ForeignKey('units.id'))  # Define a foreign key relationship to the 'units' table
- 
-    unit = relationship("Unit", back_populates="students")
+    id = Column(Integer, primary_key=True, index=True)
+    name = Column(String, index=True)
 
-    def __str__(self):
-        return f"Student(id: {self.id}, Name: {self.name}, Unit: {self.unit.title if self.unit else None})"
+class Unit(Base):
+    __tablename__ = 'units'
+    id = Column(Integer, primary_key=True, index=True)
+    name = Column(String, index=True)
 
+    # Define the relationship with Student and specify the foreign key
+    students = relationship("Student", secondary="student_units")
+
+class StudentUnit(Base):
+    __tablename__ = 'student_units'
+    student_id = Column(Integer, ForeignKey('students.id'), primary_key=True)
+    unit_id = Column(Integer, ForeignKey('units.id'), primary_key=True)
 
 # Lecturer Class
 class Lecturer(Base):
@@ -28,16 +34,12 @@ class Lecturer(Base):
     def __str__(self):
         return f"Lecturer(id: {self.id}, Name: {self.name}, Department: {self.department})"
 
-# Unit Class
-class Unit(Base):
-    __tablename__ = 'units'
-    id = Column(Integer, primary_key=True)
-    title = Column(String, nullable=False)
-    
-    students = relationship("Student", back_populates="unit")
+# # Unit Class
+# class Unit(Base):
+#     __tablename__ = 'units'
 
-    def __init__(self, title):
-        self.title = title
+#     id = Column(Integer, primary_key=True)
+#     name = Column(String)
 
-    def __str__(self):
-        return f"Unit(id: {self.id}, Title: {self.title})"
+#     # Define a relationship to the Student model
+#     students = relationship("Student", back_populates="unit")
