@@ -124,5 +124,19 @@ def add_unit(name):
         session.commit()
         click.echo(f'Unit "{name}" added successfully.')
 
+
+@cli.command(name="delete-unit")
+@click.option('--name', prompt='Unit Name', help='Name of the unit to delete')
+def delete_unit(name):
+    """Delete a unit """
+    session = click.get_current_context().obj
+    unit = session.query(Unit).filter_by(name=name).first()
+
+    if unit:
+        session.delete(unit)
+        session.commit()
+        click.echo(f'Unit "{name}" deleted successfully.')
+    else:
+        click.echo(f'Unit "{name}" not found.')
 if __name__ == '__main__':
     cli()

@@ -1,10 +1,6 @@
 # import click
 # #request input from user
 
-# # Define data structures to store information
-# lecturers = []
-# units = []
-# students = []
 
 # @click.group()
 # def cli():
