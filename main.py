@@ -16,7 +16,7 @@ def cli(ctx):
 @click.option('--name', prompt='Student Name', help='Name of the student')
 @click.option('--units', prompt='Student Units', help='Comma-separated list of units for the student')
 def create_student(name, units):
-    """Add a new student to the database with associated units"""
+    """ """
     session = click.get_current_context().obj  # Retrieve the session from the Click context
 
     # Split the units string into a list
@@ -36,6 +36,76 @@ def create_student(name, units):
     session.add(student)
     session.commit()
     click.echo(f'Student "{name}" created successfully with units: {", ".join(units_list)}')
+
+
+
+
+@cli.command(name="list-students")
+def list_students():
+    """ """
+    session = click.get_current_context().obj  # Retrieve the session from the Click context
+
+    students = session.query(Student).all()
+
+    if not students:
+        click.echo("No students found in the database.")
+    else:
+        click.echo("Student Names:")
+        for student in students:
+            click.echo(student.name)
+
+@cli.command(name="delete-student")
+@click.option('--name', prompt='Student Name', help='Name of the student to delete')
+def delete_student(name):
+    """Delete a student by name from the database."""
+    session = click.get_current_context().obj  # Retrieve the session from the Click context
+
+    # Query the student by name
+    student = session.query(Student).filter_by(name=name).first()
+
+    if not student:
+        click.echo(f'Student "{name}" not found in the database.')
+    else:
+        # Delete the student
+        session.delete(student)
+        session.commit()
+        click.echo(f'Student "{name}" has been deleted from the database.')
+
+@cli.command(name="add-lecturer")
+@click.option('--name', prompt='Lecturer Name', help='Name of the lecturer')
+@click.option('--department', prompt='Lecturer Department', help='Department of the lecturer')
+def create_lecturer(name, department):
+    """Add Lecturer"""
+    session = click.get_current_context().obj  # Retrieve the session from the Click context
+
+    # Create a new Lecturer instance
+    lecturer = Lecturer(name=name, department=department)
+
+    session.add(lecturer)
+    session.commit()
+    click.echo(f'Lecturer "{name}" created successfully in the {department} department.')
+
+
+
+#delete Lecturer
+@cli.command(name="delete-lecturer")
+@click.option('--lecturer-id', prompt='Lecturer ID', type=int, help='ID of the lecturer to delete')
+def delete_lecturer(lecturer_id):
+    """Delete a lecturer """
+    session = click.get_current_context().obj  # Retrieve the session from the Click context
+
+    # Query the lecturer by ID
+    lecturer = session.query(Lecturer).filter_by(id=lecturer_id).first()
+
+    if lecturer:
+        department_name = lecturer.department  # Get the department name before deleting
+        session.delete(lecturer)
+        session.commit()
+        click.echo(f'Lecturer ID {lecturer_id} and associated department "{department_name}" deleted successfully.')
+    else:
+        click.echo(f'Lecturer with ID {lecturer_id} not found in the database.')
+
+
 
 if __name__ == '__main__':
     cli()

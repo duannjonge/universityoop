@@ -16,8 +16,11 @@ class Unit(Base):
     id = Column(Integer, primary_key=True, index=True)
     name = Column(String, index=True)
 
-    # Define the relationship with Student and specify the foreign key
+    # Define the relationship with Student and specify the secondary table
     students = relationship("Student", secondary="student_units")
+
+    def __str__(self):
+        return f"Unit(id: {self.id}, Name: {self.name})"
 
 class StudentUnit(Base):
     __tablename__ = 'student_units'
