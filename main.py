@@ -125,6 +125,37 @@ def add_unit(name):
         click.echo(f'Unit "{name}" added successfully.')
 
 
+#update unit
+
+@cli.command(name="update-unit")
+@click.option('--old-name', prompt='Old Unit Name', help='Name of the unit to update')
+@click.option('--new-name', prompt='New Unit Name', help='New name for the unit')
+def update_unit(old_name, new_name):
+    """Update a unit's name in the database"""
+    session = click.get_current_context().obj  # Retrieve the session from the Click context
+
+    # Query the unit by its old name
+    unit = session.query(Unit).filter_by(name=old_name).first()
+
+    if unit:
+        # Check if the new name already exists
+        existing_unit = session.query(Unit).filter_by(name=new_name).first()
+
+        if existing_unit:
+            click.echo(f'Unit "{new_name}" already exists in the database. Skipping update.')
+        else:
+            # Update the unit's name
+            unit.name = new_name
+            session.commit()
+            click.echo(f'Unit name updated successfully: "{old_name}" -> "{new_name}"')
+    else:
+        click.echo(f'Unit "{old_name}" not found in the database. Update aborted.')
+
+
+
+
+#delete unit
+
 @cli.command(name="delete-unit")
 @click.option('--name', prompt='Unit Name', help='Name of the unit to delete')
 def delete_unit(name):

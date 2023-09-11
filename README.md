@@ -15,8 +15,11 @@ and be associated to a lecturer
 
 Can see a list of all units and departments
 can delete units
-can add a unit
 
+### App
+Run main.py to fire the application
 
+### Challenges
+Encountered circular imports had to result to a less modular format
 
 
