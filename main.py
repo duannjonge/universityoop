@@ -16,7 +16,7 @@ def cli(ctx):
 @click.option('--name', prompt='Student Name', help='Name of the student')
 @click.option('--units', prompt='Student Units', help='Comma-separated list of units for the student')
 def create_student(name, units):
-    """ """
+    """ create student """
     session = click.get_current_context().obj  # Retrieve the session from the Click context
 
     # Split the units string into a list
@@ -42,7 +42,7 @@ def create_student(name, units):
 
 @cli.command(name="list-students")
 def list_students():
-    """ """
+    """ list students """
     session = click.get_current_context().obj  # Retrieve the session from the Click context
 
     students = session.query(Student).all()
@@ -105,7 +105,24 @@ def delete_lecturer(lecturer_id):
     else:
         click.echo(f'Lecturer with ID {lecturer_id} not found in the database.')
 
+#add units
+@cli.command(name="add-unit")
+@click.option('--name', prompt='Unit Name', help='Name of the unit to add')
+def add_unit(name):
+    """Add a new unit"""
+    session = click.get_current_context().obj  # Retrieve the session from the Click context
 
+    # Check if a unit with the same name already exists
+    existing_unit = session.query(Unit).filter_by(name=name).first()
+
+    if existing_unit:
+        click.echo(f'Unit "{name}" already exists in the database. Skipping.')
+    else:
+        # Create a new Unit instance and add it to the session
+        unit = Unit(name=name)
+        session.add(unit)
+        session.commit()
+        click.echo(f'Unit "{name}" added successfully.')
 
 if __name__ == '__main__':
     cli()
